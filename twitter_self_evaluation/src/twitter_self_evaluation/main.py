@@ -1,49 +1,45 @@
 #!/usr/bin/env python
-from random import randint
+from typing import Optional
 from pydantic import BaseModel
-from crewai.flow.flow import Flow, listen, start
-from .crews.poem_crew.poem_crew import PoemCrew
+from crewai.flow.flow import Flow, listen, start, router
+from .crews.shakesphere_crew import shakesphere_crew
+from .crews.x_post_review_crew import x_post_review_crew
 
+class TwitterPostState(BaseModel):
+    x_post: str =""
+    feedback: Optional[str] = None
+    valid: bool = False
+    retry_count: int = 0
 
-class PoemState(BaseModel):
-    sentence_count: int = 1
-    poem: str = ""
+class TwitterPostFlow(Flow[TwitterPostState]):
+    @start("retry")
+    def generate_shakespeare_x_post(self):
+        #TODO: Add Shakespeare Crew
+        pass
+   
+    @router(generate_shakespeare_x_post)
+    def evaluate_x_post(self):
+        #TODO: Add evaluation crew
+        #Option 1: completed
+        #Option 2; Max retry exceeded
+        #option 3: retry
+        pass
+   
+    @listen("completed")
+    def save_results(self):
+       pass
 
-
-class PoemFlow(Flow[PoemState]):
-
-    @start()
-    def generate_sentence_count(self):
-        print("Generating sentence count")
-        self.state.sentence_count = randint(1, 5)
-
-    @listen(generate_sentence_count)
-    def generate_poem(self):
-        print("Generating poem")
-        result = (
-            PoemCrew()
-            .crew()
-            .kickoff(inputs={"sentence_count": self.state.sentence_count})
-        )
-
-        print("Poem generated", result.raw)
-        self.state.poem = result.raw
-
-    @listen(generate_poem)
-    def save_poem(self):
-        print("Saving poem")
-        with open("poem.txt", "w") as f:
-            f.write(self.state.poem)
-
+    @listen("max_retry_exceeded")
+    def max_retry_exceeded_exit(self):
+        pass
 
 def kickoff():
-    poem_flow = PoemFlow()
-    poem_flow.kickoff()
-
-
+    twitter_flow = TwitterPostFlow()
+    twitter_flow.kickoff()
+    
 def plot():
-    poem_flow = PoemFlow()
-    poem_flow.plot()
+    post_flow = TwitterPostFlow()
+    post_flow.plot()
 
 
 if __name__ == "__main__":
