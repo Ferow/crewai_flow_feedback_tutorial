@@ -1,0 +1,17 @@
+[project]
+name = "twitter_self_evaluation"
+version = "0.1.0"
+description = "twitter_self_evaluation using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<=3.13"
+dependencies = [
+    "crewai[tools]>=0.83.0,<1.0.0",
+]
+
+[project.scripts]
+kickoff = "twitter_self_evaluation.main:kickoff"
+plot = "twitter_self_evaluation.main:plot"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
